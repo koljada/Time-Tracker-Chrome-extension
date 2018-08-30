@@ -1,0 +1,36 @@
+{
+  "name": "Time Tracking",
+  "version": "0.0.1",
+  "manifest_version": 2,
+  "description": "This extension allows to track today's working time",
+  //"homepage_url": "http://extensionizr.com",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "default_locale": "en",
+  "background": {
+    //"scripts": [
+    //  "src/bg/background.js"
+    //],
+    "page": "src/bg/background.html",
+    "persistent": true
+  },
+  "content_security_policy": "script-src 'self' https://maxcdn.bootstrapcdn.com https://cdnjs.cloudflare.com; object-src 'self'",
+  "browser_action": {
+    "default_icon": "icons/icon128.png",
+    "default_title": "Time Tracking",
+    "default_popup": "src/browser_action/browser_action.html"
+  },
+  "permissions": [
+    //"clipboardRead",
+    "clipboardWrite",
+    //"cookies",
+    "history",
+    //"management",
+    "tabs",
+    "notifications",
+    "storage"
+  ]
+}
