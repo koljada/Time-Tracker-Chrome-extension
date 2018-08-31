@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         startBreakBtn.disabled = true;
         endBreakBtn.disabled = false;
 
-        showToast('Break start', 'You started a break at ' + print());
+        showToast('Break start', 'You started a break at ' + await print());
     }
 
     async function endBreak(event) {
@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             createReport();
 
-            showToast('Break end', 'You ended a break at ' + print() + '. Break duration: ' + diffInMinutes.toFixed(2) + ' minutes');
+            showToast('Break end', 'You ended a break at ' + await print() + '. Break duration: ' + diffInMinutes.toFixed(2) + ' minutes');
         }
     }
 
@@ -77,9 +77,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             var total = end.diff(start, 'minutes') - breaks;
 
-            document.getElementById('start').textContent = print(start);
+            document.getElementById('start').textContent = await print(start);
             document.getElementById('break').textContent = (breaks / 60).toFixed(2) + 'h';
-            document.getElementById('end').textContent = print(end);
+            document.getElementById('end').textContent = await print(end);
             document.getElementById('total').textContent = (total / 60).toFixed(2) + 'h';
 
             var text = document.getElementById('content').textContent.split(/\r?\n/).map(x => x.trim()).join('\r\n');

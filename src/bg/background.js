@@ -18,8 +18,9 @@ chrome.storage.onChanged.addListener(async function (changes, namespace) {
         var todayStart = await storage.get(TODAY_START_KEY);
         if (todayStart) {
             var start = moment(todayStart);
-            var target = start.add(8, 'hours').add(breaks.newValue, 'minutes');
-            console.log('Target changed to:', print(target));
+            var workHours = await getWorkHours();
+            var target = start.add(workHours, 'h').add(breaks.newValue, 'm');
+            console.log('Target changed to:', await print(target));
             setEndWorkTimeout(target.diff(moment()));
         }
     }

@@ -1,3 +1,9 @@
+storage = {
+    get: getFromLocalStorage,
+    set: setToLocalStorage,
+    remove: removeFromLocalStorage
+};
+
 /**
  * Create random notification id
  * @returns {string} Random number for the notification id
@@ -30,14 +36,33 @@ function getBreakKey() {
     return moment().format('[breakInMinutes]: YYYY-MM-DD');
 }
 
+async function getTimezone() {
+    return await storage.get('user-timezone') || moment.tz.guess();    
+}
+
+async function setTimezone(timezone) {
+    return await storage.set('user-timezone', timezone);
+}
+
+async function getWorkHours() {
+    return await storage.get('user-work-hours') || 8;
+}
+
+async function setWorkHours(workHours) {
+    await storage.set('user-work-hours', workHours);
+
+    var breaksKey = getBreakKey();
+    return await storage.set(breaksKey, await storage.get(breaksKey) + 0.01);
+}
+
 /**
  * Convert datetime to the timezone and format it
  * @param {Moment} time Datetime. Current datetime by default
  * @param {string} format Datetime format. 'HH:mm' by default
  * @returns {string} Datetime string
  */
-function print(time, format) {
-    const zone = "Europe/Kiev";//TODO: from options
+async function print(time, format) {
+    var zone = await getTimezone();
 
     time = time || moment();
     format = format || 'HH:mm';    
@@ -76,10 +101,3 @@ async function setToLocalStorage(key, value) {
 async function removeFromLocalStorage(key) {
     return new Promise(resolve => chrome.storage.local.remove(key, () => resolve()));
 }
-
-
-storage = {
-    get: getFromLocalStorage,
-    set: setToLocalStorage,
-    remove: removeFromLocalStorage
-};
