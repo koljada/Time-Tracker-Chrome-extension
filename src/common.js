@@ -4,27 +4,50 @@ storage = {
     remove: removeFromLocalStorage
 };
 
-/**
- * Create random notification id
- * @returns {string} Random number for the notification id
- */
-function getNotificationId() {
-    return (Math.floor(Math.random() * 9007199254740992) + 1).toString();
-}
 
 /**
  * Show browser notification
- * @param {any} title Notification title
- * @param {any} message Notification message
+ * @param {string} title Notification title
+ * @param {string} message Notification message
+ * @param {boolean} withButton Whether include a button
  */
-function showToast(title, message) {
-    var id = getNotificationId();
-    chrome.notifications.create(id, {
+function showToast(title, message, withButton) {
+    let options = {
         title: title,
         iconUrl: '../../icons/icon128.png',
         type: 'basic',
         message: message
-    }, function () { console.log('Message created', chrome.lastError, id); });
+    };
+
+    if (withButton) {
+        options.requireInteraction = true;
+        options.buttons = [{ title: 'Finish break' }];
+    }
+
+    chrome.notifications.create(null, options, function (id) { console.log('Message created', chrome.lastError, id); });
+}
+
+chrome.notifications.onButtonClicked.addListener(async (id, buttonIndex) => await endBreakBase());
+
+async function endBreakBase() {
+    const TODAY_BREAK_KEY = getBreakKey();
+    const BREAK_START_KEY = 'breakStart';
+
+    var todayTotalBreak = await storage.get(TODAY_BREAK_KEY) || 0;
+
+    var breakStart = await storage.get(BREAK_START_KEY);
+
+    if (breakStart) {
+        var diffInMinutes = (new Date() - new Date(breakStart)) / 60000;
+
+        todayTotalBreak += diffInMinutes;
+
+        await storage.set(TODAY_BREAK_KEY, todayTotalBreak);
+
+        await storage.remove(BREAK_START_KEY);
+
+        showToast('Break end', 'You ended a break at ' + await print() + '. Break duration: ' + diffInMinutes.toFixed(2) + ' minutes');
+    }
 }
 
 function getStartKey() {

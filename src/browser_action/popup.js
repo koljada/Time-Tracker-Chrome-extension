@@ -27,30 +27,16 @@ document.addEventListener('DOMContentLoaded', async function () {
         startBreakBtn.disabled = true;
         endBreakBtn.disabled = false;
 
-        showToast('Break start', 'You started a break at ' + await print());
+        showToast('Break start', 'You started a break at ' + await print(), true);
     }
 
     async function endBreak(event) {
-        var todayTotalBreak = await storage.get(TODAY_BREAK_KEY) || 0;
+        endBreakBase();
 
-        var breakStart = await storage.get(BREAK_START_KEY);
+        startBreakBtn.disabled = false;
+        endBreakBtn.disabled = true;
 
-        if (breakStart) {
-            var diffInMinutes = (new Date() - new Date(breakStart)) / 60000;
-
-            todayTotalBreak += diffInMinutes;
-
-            await storage.set(TODAY_BREAK_KEY, todayTotalBreak);
-
-            await storage.remove(BREAK_START_KEY);
-
-            startBreakBtn.disabled = false;
-            endBreakBtn.disabled = true;
-
-            createReport();
-
-            showToast('Break end', 'You ended a break at ' + await print() + '. Break duration: ' + diffInMinutes.toFixed(2) + ' minutes');
-        }
+        createReport();
     }
 
     async function addBreak(event) {
@@ -66,7 +52,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         showToast('New break', 'You added a break which lasted ' + breakDuration + ' minutes');
     }
 
-    async function createReport() {
+    async function createReport() {        
         var todayStart = await storage.get(TODAY_START_KEY);
 
         if (todayStart) {
