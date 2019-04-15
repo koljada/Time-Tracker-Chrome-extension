@@ -1,9 +1,28 @@
-storage = {
+const storage = {
     get: getFromLocalStorage,
     set: setToLocalStorage,
-    remove: removeFromLocalStorage
+    remove: removeFromLocalStorage,
+
+    timezone: {
+        get: getTimezone,
+        set: setTimezone,
+    },
+    workHours:{
+        get: getWorkHours,
+        set: setWorkHours,
+    },    
 };
 
+const helper = {
+    showToast: showToast,
+    print: print,
+    endBreak: endBreakBase,
+};
+
+const keys = {
+    getStart: getStartKey,
+    getBreak: getBreakKey,
+};
 
 /**
  * Show browser notification
@@ -27,18 +46,32 @@ function showToast(title, message, withButton) {
     chrome.notifications.create(null, options, function (id) { console.log('Message created', chrome.lastError, id); });
 }
 
-chrome.notifications.onButtonClicked.addListener(async (id, buttonIndex) => await endBreakBase());
+/**
+ * Convert datetime to the timezone and format it
+ * @param {Moment} time Datetime. Current datetime by default
+ * @param {string} format Datetime format. 'HH:mm' by default
+ * @returns {string} Datetime string
+ */
+async function print(time, format) {
+    var zone = await getTimezone();
 
-async function endBreakBase() {
+    time = time || moment();
+    format = format || 'HH:mm';    
+
+    return time.tz(zone).format(format);
+}
+
+
+async function endBreakBase(fromNotification) {
     const TODAY_BREAK_KEY = getBreakKey();
     const BREAK_START_KEY = 'breakStart';
 
-    var todayTotalBreak = await storage.get(TODAY_BREAK_KEY) || 0;
+    let todayTotalBreak = await storage.get(TODAY_BREAK_KEY) || 0;
 
-    var breakStart = await storage.get(BREAK_START_KEY);
+    const breakStart = await storage.get(BREAK_START_KEY);
 
     if (breakStart) {
-        var diffInMinutes = (new Date() - new Date(breakStart)) / 60000;
+        const diffInMinutes = (new Date() - new Date(breakStart)) / 60000;
 
         todayTotalBreak += diffInMinutes;
 
@@ -78,20 +111,6 @@ async function setWorkHours(workHours) {
     return await storage.set(breaksKey, await storage.get(breaksKey) + 0.01);
 }
 
-/**
- * Convert datetime to the timezone and format it
- * @param {Moment} time Datetime. Current datetime by default
- * @param {string} format Datetime format. 'HH:mm' by default
- * @returns {string} Datetime string
- */
-async function print(time, format) {
-    var zone = await getTimezone();
-
-    time = time || moment();
-    format = format || 'HH:mm';    
-
-    return time.tz(zone).format(format);
-}
 
 //TODO: handle lastError
 

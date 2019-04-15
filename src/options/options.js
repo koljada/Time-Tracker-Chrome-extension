@@ -3,14 +3,14 @@ document.addEventListener('DOMContentLoaded', async function () {
     const select = document.getElementById('timezone');
     const workHours = document.getElementById('work-hours');
 
-    workHours.value = await getWorkHours();
+    workHours.value = await storage.workHours.get();
 
-    var zones = moment.tz.names();
+    const zones = moment.tz.names();
 
-    var defaultZone = await getTimezone();
+    const defaultZone = await storage.timezone.get();
 
     zones.forEach(x => {
-        var opt = document.createElement('option');
+        const opt = document.createElement('option');
         opt.value = x;
         opt.text = x;
         if (x === defaultZone) {
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         select.appendChild(opt);
     });
 
-    select.addEventListener('change', async (event) => await setTimezone(event.target.selectedOptions[0].value));
+    select.addEventListener('change', async (event) => await storage.timezone.set(event.target.selectedOptions[0].value));
 
-    workHours.addEventListener('change', async (event) => await setWorkHours(event.target.value));
+    workHours.addEventListener('change', async (event) => await storage.workHours.set(event.target.value));
 });

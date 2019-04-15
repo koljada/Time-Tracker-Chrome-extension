@@ -1,6 +1,6 @@
 {
   "name": "Time Tracking",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "manifest_version": 2,
   "description": "This extension allows to track today's working time",
   //"homepage_url": "http://extensionizr.com",
@@ -11,13 +11,17 @@
   },
   "default_locale": "en",
   "background": {
-    //"scripts": [
-    //  "src/bg/background.js"
-    //],
-    "page": "src/bg/background.html",
+    "scripts": [
+      "js/moment.min.js",      
+      "js/moment-timezone.min.js",      
+      "js/moment-timezone-with-data-2012-2022.min.js",      
+      "src/common.js",
+      "src/bg/background.js"
+    ],
+    // "page": "src/bg/background.html",
     "persistent": true
   },
-  "content_security_policy": "script-src 'self' https://maxcdn.bootstrapcdn.com https://cdnjs.cloudflare.com; object-src 'self'",
+  "content_security_policy": "script-src 'self' https://maxcdn.bootstrapcdn.com https://cdnjs.cloudflare.com; object-src 'self' https://cdnjs.cloudflare.com",
   "browser_action": {
     "default_icon": "icons/icon128.png",
     "default_title": "Time Tracking",
