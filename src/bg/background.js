@@ -1,4 +1,4 @@
-let timeout;
+let timeout, todayStart;
 
 const TARGET_HOURS = 8;//TODO: from options
 
@@ -13,12 +13,33 @@ chrome.notifications.onButtonClicked.addListener(async (id, buttonIndex) => {
     chrome.runtime.sendMessage({ msg: "break_finished" });
 });
 
-chrome.history.onVisited.addListener(async (historyItem) => {
-    if (!await storage.get(TODAY_START_KEY)) {
-        await storage.set(TODAY_START_KEY, new Date().toISOString());
+(async function checkHistory() {
+    todayStart = await storage.get(TODAY_START_KEY);
+
+    if (!todayStart) {
+        chrome.history.search({
+            startTime: moment().startOf('day').valueOf(),
+            maxResults: 10000,
+            text: ''
+        }, visits => {
+            let date = new Date();
+            if (visits.length) {
+                date = new Date(visits[visits.length - 1].lastVisitTime);
+            }
+
+            setStartDate(date);
+        });
+    }
+})();
+
+//chrome.history.onVisited.addListener(e => setStartDate(new Date()));
+
+async function setStartDate(date) {
+    if (!todayStart) {
+        await storage.set(TODAY_START_KEY, date.toISOString());
         setEndWorkTimeout(moment.duration(TARGET_HOURS, 'hours'));
     }
-});
+}
 
 chrome.storage.onChanged.addListener(async function (changes, namespace) {
     const breaks = changes[TODAY_BREAK_KEY];
@@ -32,6 +53,22 @@ chrome.storage.onChanged.addListener(async function (changes, namespace) {
             setEndWorkTimeout(target.diff(moment()));
         }
     }
+});
+
+chrome.contextMenus.create({
+    title: "Week History",
+    contexts: ["browser_action"],
+    onclick: (e) => chrome.tabs.create({
+        url: "src/history/week.html"
+    }),
+});
+
+chrome.contextMenus.create({
+    title: "Month History",
+    contexts: ["browser_action"],
+    onclick: (e) => chrome.tabs.create({
+        url: "src/history/month.html"
+    }),
 });
 
 function setEndWorkTimeout(target) {

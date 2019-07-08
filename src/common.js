@@ -7,10 +7,10 @@ const storage = {
         get: getTimezone,
         set: setTimezone,
     },
-    workHours:{
+    workHours: {
         get: getWorkHours,
         set: setWorkHours,
-    },    
+    },
 };
 
 const helper = {
@@ -21,7 +21,10 @@ const helper = {
 
 const keys = {
     getStart: getStartKey,
+    getEnd: getEndKey,
     getBreak: getBreakKey,
+    getMonthHistory: getMonthHistoryKey,
+    getWeekHistory: getWeekHistoryKey,
 };
 
 /**
@@ -53,10 +56,10 @@ function showToast(title, message, withButton) {
  * @returns {string} Datetime string
  */
 async function print(time, format) {
-    var zone = await getTimezone();
+    const zone = await getTimezone();
 
     time = time || moment();
-    format = format || 'HH:mm';    
+    format = format || 'HH:mm';
 
     return time.tz(zone).format(format);
 }
@@ -88,12 +91,33 @@ function getStartKey() {
     //return moment().format('[start]: YYYY-MM-DD');
 }
 
+function getEndKey() {
+    return 'end:' + new Date().toLocaleDateString();
+    //return moment().format('[start]: YYYY-MM-DD');
+}
+
 function getBreakKey() {
     return moment().format('[breakInMinutes]: YYYY-MM-DD');
 }
 
+function getMonthHistoryKey() {
+    const currentDate = moment();
+    const year = currentDate.year();
+    const month = currentDate.month();
+
+    return `month_history:${year}/${month}`;
+}
+
+function getWeekHistoryKey() {
+    const currentDate = moment();
+    const year = currentDate.year();
+    const week = currentDate.week();
+
+    return `week_history:${year}/${week}`;
+}
+
 async function getTimezone() {
-    return await storage.get('user-timezone') || moment.tz.guess();    
+    return await storage.get('user-timezone') || moment.tz.guess();
 }
 
 async function setTimezone(timezone) {
@@ -107,7 +131,8 @@ async function getWorkHours() {
 async function setWorkHours(workHours) {
     await storage.set('user-work-hours', workHours);
 
-    var breaksKey = getBreakKey();
+    const breaksKey = getBreakKey();
+
     return await storage.set(breaksKey, await storage.get(breaksKey) + 0.01);
 }
 

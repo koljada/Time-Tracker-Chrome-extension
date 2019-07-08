@@ -1,9 +1,9 @@
 {
   "name": "Time Tracking",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "manifest_version": 2,
-  "description": "This extension allows to track today's working time",
-  //"homepage_url": "http://extensionizr.com",
+  "description": "This extension allows you to track today's working time",
+  "homepage_url": "https://ti.webssa.com",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
@@ -12,9 +12,9 @@
   "default_locale": "en",
   "background": {
     "scripts": [
-      "js/moment.min.js",      
-      "js/moment-timezone.min.js",      
-      "js/moment-timezone-with-data-2012-2022.min.js",      
+      "js/moment.min.js",
+      "js/moment-timezone.min.js",
+      "js/moment-timezone-with-data-2012-2022.min.js",
       "src/common.js",
       "src/bg/background.js"
     ],
@@ -39,6 +39,7 @@
     //"management",
     "tabs",
     "notifications",
-    "storage"
+    "storage",
+    "contextMenus"
   ]
 }

@@ -14,6 +14,10 @@
         align-items: center;
     }
 
+        .space-around button {
+            margin: 0 2px;
+        }
+
     #content {
         width: 280px;
         display: flex;
@@ -55,7 +59,8 @@
 
 <div class="well space-around">
     <button id="start-break" type="button" class="btn btn-success" disabled>Start break</button>
-    <button id="end-break" type="button" class="btn btn-danger" disabled>End break</button>
+    <button id="end-break" type="button" class="btn btn-warning" disabled>End break</button>
+    <button id="end-day" type="button" class="btn btn-danger" disabled>End day</button>
 </div>
 <div class="well form-group-sm space-around">
     <div>Add a break in </div>
@@ -69,5 +74,3 @@
     <div><label>End</label><label>: </label><span id="end"></span></div>
     <div><label>Total</label><label>: </label><span id="total"></span></div>
 </div>
-<a href="https://ti.webssa.com/login.php?registration=1&rnd=816987100" class="btn btn-sm btn-primary" target="_blank">TI</a>
-<a href="https://trello.com/c/7olfTHeM/1021-time-worked-roman-aug-2018" class="btn btn-sm btn-primary" target="_blank">Trello</a>

@@ -4,6 +4,7 @@ const TODAY_START_KEY = keys.getStart();
 let startBreakBtn;
 let endBreakBtn;
 let addBreakBtn;
+let endDayBtn;
 
 const BREAK_START_KEY = 'breakStart';
 
@@ -21,18 +22,29 @@ async function init() {
     startBreakBtn = document.getElementById('start-break');
     endBreakBtn = document.getElementById('end-break');
     addBreakBtn = document.getElementById('add-custom-break');
+    endDayBtn = document.getElementById('end-day');
 
     const breakHasStarted = await storage.get(BREAK_START_KEY);
-    startBreakBtn.disabled = !!breakHasStarted;
+    startBreakBtn.disabled = endDayBtn.disabled = !!breakHasStarted;
     endBreakBtn.disabled = !breakHasStarted;
 
-    createReport();
+    const endKey = keys.getEnd();
+    const hasEnd = await storage.get(endKey);
 
-    startBreakBtn.addEventListener('click', startBreak);
+    createReport(false, hasEnd);
 
-    endBreakBtn.addEventListener('click', endBreak);
+    if (!hasEnd) {
+        startBreakBtn.addEventListener('click', startBreak);
 
-    addBreakBtn.addEventListener('click', addBreak);
+        endBreakBtn.addEventListener('click', endBreak);
+
+        addBreakBtn.addEventListener('click', addBreak);
+
+        endDayBtn.addEventListener('click', endDay);
+    }
+    else {
+        startBreakBtn.disabled = endBreakBtn.disabled = addBreakBtn.disabled = endDayBtn.disabled = true;
+    }
 }
 
 async function startBreak(event) {
@@ -55,6 +67,29 @@ async function endBreak(event, skipCalulation) {
     createReport();
 }
 
+async function endDay(event) {    
+    const endKey = keys.getEnd();
+    await storage.set(endKey, new Date().toISOString());
+
+    const totalMinutes = await createReport(true);
+
+    const currentDayKey = keys.getStart();
+
+    const monthKey = keys.getMonthHistory();
+    const monthHistory = await storage.get(monthKey) || {};
+    monthHistory[currentDayKey] = totalMinutes;
+    await storage.set(monthKey, monthHistory);
+
+    const weekKey = keys.getWeekHistory();
+    const weekHistory = await storage.get(weekKey) || {};
+    weekHistory[currentDayKey] = totalMinutes;
+    await storage.set(weekKey, weekHistory);
+
+    startBreakBtn.disabled = endBreakBtn.disabled = addBreakBtn.disabled = endDayBtn.disabled = true;
+
+    showToast('You\'re off the clock!', 'Your today\`s timesheet has been copied to the clipboard.');
+}
+
 async function addBreak(event) {
     let todayTotalBreak = await storage.get(TODAY_BREAK_KEY) || 0;
 
@@ -68,12 +103,12 @@ async function addBreak(event) {
     helper.showToast('New break', 'You added a break which lasted ' + breakDuration + ' minutes');
 }
 
-async function createReport() {
+async function createReport(copyText, endTime) {
     const todayStart = await storage.get(TODAY_START_KEY);
 
     if (todayStart) {
         const start = moment(todayStart);
-        const end = moment();
+        const end = endTime ? moment(endTime) : moment();
 
         const breaks = await storage.get(TODAY_BREAK_KEY) || 0;
 
@@ -84,9 +119,13 @@ async function createReport() {
         document.getElementById('end').textContent = await helper.print(end);
         document.getElementById('total').textContent = (total / 60).toFixed(2) + 'h';
 
-        const text = document.getElementById('content').textContent.split(/\r?\n/).map(x => x.trim()).join('\r\n');
+        if (copyText) {
+            const text = document.getElementById('content').textContent.split(/\r?\n/).map(x => x.trim()).join('\r\n');
 
-        copy(text, 'text/plain');
+            copy(text, 'text/plain');
+        }
+
+        return total;
     }
 }
 
