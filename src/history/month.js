@@ -1,2 +1,2 @@
-const key = keys.getWeekHistory();
+const key = keys.getMonthHistory();
 init(key);

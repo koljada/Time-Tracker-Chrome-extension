@@ -50,7 +50,7 @@ async function init() {
 async function startBreak(event) {
     await storage.set(BREAK_START_KEY, new Date().toISOString());
 
-    startBreakBtn.disabled = true;
+    startBreakBtn.disabled = endDayBtn.disabled = true;
     endBreakBtn.disabled = false;
 
     helper.showToast('Break start', 'You started a break at ' + await helper.print(), true);
@@ -61,7 +61,7 @@ async function endBreak(event, skipCalulation) {
         helper.endBreak();
     }
 
-    startBreakBtn.disabled = false;
+    startBreakBtn.disabled = endDayBtn.disabled = false;
     endBreakBtn.disabled = true;
 
     createReport();
