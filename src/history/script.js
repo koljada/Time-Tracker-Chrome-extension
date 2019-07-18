@@ -5,15 +5,17 @@ async function init(key) {
 
     let total = 0;
 
-    Object.keys(records).forEach((key) => {
-        total += records[key];
-        const row = createRow(key, records[key]);
-        tbody.appendChild(row);
-    });
+    Object.keys(records)
+        .sort((a, b) => moment(a).isSameOrBefore(moment(b)) ? -1 : 1)
+        .forEach((key) => {
+            total += records[key];
+            const row = createRow(key, records[key]);
+            tbody.appendChild(row);
+        });
 
     const tfoot = document.getElementById('tfoot');
     if (total) {
-        const row = createRow('', total);
+        const row = createRow((total / 60 / Object.keys(records).length).toFixed(2), total);
         tfoot.appendChild(row);
     }
     else {
