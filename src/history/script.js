@@ -1,21 +1,26 @@
-async function init(key) {
+async function init(key, parent) {
     const records = await storage.get(key);
 
-    const tbody = document.getElementById('tbody');
+    const tbody = document.querySelector('#' + parent + ' .tbody');
 
     let total = 0;
+    let average = 0;
 
-    Object.keys(records)
-        .sort((a, b) => moment(a).isSameOrBefore(moment(b)) ? -1 : 1)
-        .forEach((key) => {
-            total += records[key];
-            const row = createRow(key, records[key]);
-            tbody.appendChild(row);
-        });
+    if (records) {
+        Object.keys(records)
+            .sort((a, b) => moment(a).isSameOrBefore(moment(b)) ? -1 : 1)
+            .forEach((key) => {
+                total += records[key];
+                const row = createRow(key, records[key]);
+                tbody.appendChild(row);
+            });
 
-    const tfoot = document.getElementById('tfoot');
+        average = (total / 60 / Object.keys(records).length).toFixed(2);
+    }
+
+    const tfoot = document.querySelector('#' + parent + ' .tfoot');
     if (total) {
-        const row = createRow((total / 60 / Object.keys(records).length).toFixed(2), total);
+        const row = createRow(average, total);
         tfoot.appendChild(row);
     }
     else {
@@ -34,3 +39,30 @@ function createRow(dateString, durationInMinutes) {
 
     return row;
 };
+
+document.querySelectorAll('#tabs a').forEach((a) => {
+    a.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        document.querySelectorAll('#tabs li').forEach((li) => li.classList.remove('active'));
+        a.parentElement.classList.add('active');
+
+        document.querySelectorAll('.tab-content .tab-pane').forEach((pane) => {
+            if (pane.id === a.getAttribute('href').replace('#', '')) {
+                pane.style.display = 'block';
+                pane.classList.add('active');
+            }
+            else {
+                pane.style.display = 'none';
+                pane.classList.remove('active');
+            }
+        });
+    });
+});
+
+const weekKey = keys.getWeekHistory();
+const monthKey = keys.getMonthHistory();
+
+document.addEventListener('DOMContentLoaded', () => {
+    init(weekKey, 'week');
+    init(monthKey, 'month');
+}, false);

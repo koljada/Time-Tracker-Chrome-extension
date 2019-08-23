@@ -56,20 +56,13 @@ chrome.storage.onChanged.addListener(async function (changes, namespace) {
 });
 
 chrome.contextMenus.create({
-    title: "Week History",
+    title: "History",
     contexts: ["browser_action"],
     onclick: (e) => chrome.tabs.create({
-        url: "src/history/week.html"
+        url: "src/history/index.html"
     }),
 });
 
-chrome.contextMenus.create({
-    title: "Month History",
-    contexts: ["browser_action"],
-    onclick: (e) => chrome.tabs.create({
-        url: "src/history/month.html"
-    }),
-});
 
 function setEndWorkTimeout(target) {
     if (timeout) {
